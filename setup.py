@@ -50,9 +50,7 @@ setup(
 	# https://packaging.python.org/en/latest/requirements.html
 
 	install_requires=[
-		'scikit-learn>=0.19.1',
-		'pandas>=0.22.0',
-		'numpy>=1.14',
+		'pandas',
 		'cloudpickle',
 	],
 

@@ -1,0 +1,43 @@
+package:
+  name: xmle
+  version: "0.1"
+
+source:
+  path: ../
+
+requirements:
+
+  build:
+    - python {{ python }}
+  host:
+    - python {{ python }}
+
+  run:
+    - python {{ python }}
+    - pandas
+
+
+test:
+  # Python imports
+  imports:
+    - xmle
+
+  commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+    - pytest --pyargs xmle
+
+  # You can also put a file called run_test.py in the recipe that will be run
+  # at test time.
+
+  requires:
+    # Put any additional test requirements here.  For example
+    - pytest
+
+about:
+  license: MIT
+  license_family: MIT
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
