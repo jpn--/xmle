@@ -9,6 +9,8 @@ from .uid import uid as _uid
 import base64
 import cloudpickle, pickle
 import pandas
+from io import BytesIO
+
 
 xml.etree.ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
 xml.etree.ElementTree.register_namespace("xlink", "http://www.w3.org/1999/xlink")
@@ -19,29 +21,95 @@ class Elem(Element):
 	"""Extends :class:`xml.etree.ElementTree.Element`"""
 
 	def __init__(self, tag, attrib=None, text=None, tail=None, html_repr=1, **extra):
+		if isinstance(tag, Element):
+			extra.update(attrib)
+			Element.__init__(self, tag.tag, tag.attrib, **extra)
+			for s in list(tag):
+				self.append(s)
+		else:
+			if attrib is None:
+				attrib = {}
+			if 'cls' in extra:
+				extra['class'] = extra.pop('cls')
+			if isinstance(text, Element):
+				Element.__init__(self, tag, attrib, **extra)
+				for k, v in text.attrib.items():
+					if k not in attrib and k not in extra:
+						self.set(k, v)
+				self.text = text.text
+				if tail:
+					self.tail = text.tail + tail
+				else:
+					self.tail = text.tail
+			else:
+				Element.__init__(self, tag, attrib, **extra)
+				if text: self.text = str(text)
+				if tail: self.tail = str(tail)
+
+	@classmethod
+	def from_any(cls, arg):
+		if isinstance(arg, bytes) and arg[:5] == b'<svg ':
+			return cls.from_string(arg)
+		elif isinstance(arg, str) and arg[:5] == '<svg ':
+			return cls.from_string(arg)
+		elif isinstance(arg, bytes) and arg[:6] == b'<?xml ':
+			return cls.from_string(arg)
+		elif isinstance(arg, str) and arg[:6] == '<?xml ':
+			return cls.from_string(arg)
+		elif isinstance(arg, bytes) and arg[:4] == b'\x89PNG':
+			return cls.from_png_raw(arg)
+		elif hasattr(arg, '__xml__'):
+			return cls(arg.__xml__())
+		elif hasattr(arg, 'get_png'):
+			return cls.from_any(arg.get_png())
+		elif isinstance(arg, str) and arg[:2] == '# ':
+			return cls.from_heading(1, arg[2:])
+		elif isinstance(arg, str) and arg[:3] == '## ':
+			return cls.from_heading(2, arg[3:])
+		elif isinstance(arg, str) and arg[:4] == '### ':
+			return cls.from_heading(3, arg[4:])
+		elif isinstance(arg, str) and arg[:5] == '#### ':
+			return cls.from_heading(4, arg[5:])
+		elif hasattr(arg, '_repr_html_'):
+			return cls.from_string(arg._repr_html_())
+		elif isinstance(arg, str):
+			return cls.from_rst(arg)
+		else:
+			raise ValueError(f"cannot create Elem from {arg}")
+
+	@classmethod
+	def from_heading(cls, heading_level, heading_text, attrib=None, **extra):
 		if attrib is None:
 			attrib = {}
-		if 'cls' in extra:
-			extra['class'] = extra.pop('cls')
-		if isinstance(text, Element):
-			Element.__init__(self, tag, attrib, **extra)
-			for k, v in text.attrib.items():
-				if k not in attrib and k not in extra:
-					self.set(k, v)
-			self.text = text.text
-			if tail:
-				self.tail = text.tail + tail
-			else:
-				self.tail = text.tail
-		else:
-			Element.__init__(self, tag, attrib, **extra)
-			if text: self.text = str(text)
-			if tail: self.tail = str(tail)
+		anchor = True
+		if "|" in heading_text:
+			heading_text, anchor = heading_text.split("|", 1)
+			anchor = anchor.strip()
+		heading_text = heading_text.strip()
+		self = cls(tag=f'h{heading_level}', attrib=attrib, **extra)
+		self.put("a",
+				 {
+					 'name': _uid(),
+					 'reftxt': anchor if isinstance(anchor, str) else heading_text,
+					 'class': 'toc',
+					 'toclevel': '{}'.format(heading_level)
+				 },
+				 tail=heading_text,
+				 )
+		return self
 
 	@classmethod
 	def from_string(cls, xml_as_string):
 		if isinstance(xml_as_string, bytes):
 			xml_as_string = xml_as_string.decode()
+		try:
+			return xml.etree.ElementTree.fromstring(xml_as_string, parser=XMLParser(target=TreeBuilder(element_factory=cls)))
+		except xml.etree.ElementTree.ParseError:
+			return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+
+	@classmethod
+	def from_bytes(cls, xml_as_bytes):
+		xml_as_string = xml_as_bytes.decode()
 		try:
 			return xml.etree.ElementTree.fromstring(xml_as_string, parser=XMLParser(target=TreeBuilder(element_factory=cls)))
 		except xml.etree.ElementTree.ParseError:
@@ -73,6 +141,58 @@ class Elem(Element):
 				x << Elem('pre', text=str(parse_err))
 				return x
 
+	@classmethod
+	def from_figure(cls, fig, format='svg', transparent=True, tooltip=None, bbox_inches='tight', classname='figure', close_after=True, **kwargs):
+		"""
+		Constructor from matplotlib Figure.
+
+		Parameters
+		----------
+		fig : matplotlib.figure.Figure or obj with get_figure
+
+		"""
+		from matplotlib import pyplot as plt
+		import matplotlib.figure
+
+
+		if not isinstance(fig, matplotlib.figure.Figure):
+			try:
+				fig = fig.get_figure()
+			except AttributeError:
+				if not hasattr(fig, 'savefig'):
+					raise TypeError('fig must be a figure or provide `get_figure` or `savefig` method.')
+
+		try:
+			fig_number = fig.number
+		except AttributeError:
+			fig_number = None
+		else:
+			this_fig = plt.figure(fig_number) # activate current figure
+
+		existing_format_keys = list(kwargs.keys())
+		for key in existing_format_keys:
+			if key.upper() != key: kwargs[key.upper()] = kwargs[key]
+		if 'GRAPHWIDTH' not in kwargs and 'GRAPHHEIGHT' in kwargs:
+			kwargs['GRAPHWIDTH'] = kwargs['GRAPHHEIGHT']
+		if 'GRAPHWIDTH' in kwargs and 'GRAPHHEIGHT' not in kwargs:
+			kwargs['GRAPHHEIGHT'] = kwargs['GRAPHWIDTH'] * .67
+		imgbuffer = BytesIO()
+		fig.savefig(imgbuffer, dpi=None, facecolor='w', edgecolor='w',
+						   orientation='portrait', papertype=None, format=format,
+						   transparent=transparent, bbox_inches=bbox_inches, pad_inches=0.1,
+						   frameon=None)
+		x = cls("div", {'class': classname})
+		try:
+			x << cls.from_any(imgbuffer.getvalue())
+		except:
+			print(imgbuffer.getvalue())
+			raise
+		if tooltip is not None and format=='svg':
+			x[0][1].insert(0, cls("title", text=tooltip))
+
+		if close_after and fig_number is not None:
+			plt.close(fig_number)
+		return x
 
 	def put(self, tag, attrib=None, text=None, tail=None, **extra):
 		if 'cls' in extra:
