@@ -6,17 +6,32 @@ an extension to xml.etree.ElementTree.Element to handle xml snippets
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
+import os
+import re
 
-here = path.abspath(path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 	long_description = f.read()
+
+def version(path):
+	"""Obtain the packge version from a python file e.g. pkg/__init__.py
+	See <https://packaging.python.org/en/latest/single_source_version.html>.
+	"""
+	with open(os.path.join(here, path), encoding='utf-8') as f:
+		version_file = f.read()
+	version_match = re.search(r"""^__version__ = ['"]([^'"]*)['"]""",
+							  version_file, re.M)
+	if version_match:
+		return version_match.group(1)
+	raise RuntimeError("Unable to find version string.")
+
+VERSION = version('xmle/__init__.py')
 
 setup(
 	name='xmle',
-	version='0.1',
+	version=VERSION,
 
 	description='an extension to xml.etree.ElementTree.Element to handle xml snippets',
 	long_description=long_description,
@@ -52,6 +67,7 @@ setup(
 	install_requires=[
 		'pandas',
 		'cloudpickle',
+		'filez',
 	],
 
 )

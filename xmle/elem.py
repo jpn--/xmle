@@ -9,7 +9,7 @@ from .uid import uid as _uid
 import base64
 import cloudpickle, pickle
 import pandas
-from io import BytesIO
+from io import BytesIO, StringIO, BufferedIOBase, TextIOBase
 
 
 xml.etree.ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
@@ -58,6 +58,10 @@ class Elem(Element):
 			return cls.from_string(arg)
 		elif isinstance(arg, bytes) and arg[:4] == b'\x89PNG':
 			return cls.from_png_raw(arg)
+		elif isinstance(arg, bytes) and arg[:5] == b'iVBOR':
+			return cls.from_png_b64(arg.decode())
+		elif isinstance(arg, str) and arg[:5] == 'iVBOR':
+			return cls.from_png_b64(arg)
 		elif hasattr(arg, '__xml__'):
 			return cls(arg.__xml__())
 		elif hasattr(arg, 'get_png'):
@@ -74,6 +78,11 @@ class Elem(Element):
 			return cls.from_string(arg._repr_html_())
 		elif isinstance(arg, str):
 			return cls.from_rst(arg)
+		elif isinstance(arg, bytes):
+			try:
+				return cls.from_bytes(arg)
+			except:
+				raise ValueError(f"cannot create Elem from {arg}")
 		else:
 			raise ValueError(f"cannot create Elem from {arg}")
 
@@ -375,6 +384,17 @@ class Elem(Element):
 		return "<xmle.Elem '{}' with {} children>".format(self.tag, (len(self)))  # +self.pprint()
 
 	def save(self, filename, overwrite=True):
+		"""
+		Save this Elem to a file.
+
+		Parameters
+		----------
+		filename : Path-like or File-like
+		overwrite : bool or str
+			If False, files will not be overwritten.  Or give 'archive:...' to copy an existing
+			file to the indicated archive location.
+
+		"""
 		if isinstance(overwrite, str) and overwrite[:8] == 'archive:':
 			filedirname, filebasename = os.path.split(filename)
 
@@ -396,10 +416,15 @@ class Elem(Element):
 				)
 				shutil.move(filename, new_name)
 			overwrite = False
-		if os.path.exists(filename) and not overwrite:
-			raise FileExistsError("file {0} already exists".format(filename))
-		with open(filename, 'wt') as f:
-			f.write(self.tostring())
+		if isinstance(filename, BufferedIOBase):
+			filename.write(self.tobytes())
+		elif isinstance(filename, TextIOBase):
+			filename.write(self.tostring())
+		else:
+			if os.path.exists(filename) and not overwrite:
+				raise FileExistsError("file {0} already exists".format(filename))
+			with open(filename, 'wt') as f:
+				f.write(self.tostring())
 
 	def anchor(self, ref, reftxt, cls, toclevel):
 		self.put("a", {'name': ref, 'reftxt': reftxt, 'class': cls, 'toclevel': toclevel})
