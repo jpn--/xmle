@@ -487,3 +487,22 @@ class Elem(Element):
 	# 		s = base64.b64encode( buffered.getvalue() ).decode()
 	# 	return Elem.from_png_b64(s)
 	#
+
+
+
+
+class ElemTable(Elem):
+
+	def __str__(self):
+		from .html_table_to_txt import xml_table_to_txt
+		try:
+			return xml_table_to_txt(self)
+		except IndexError:
+			return "<xmle.ElemTable render fail>"
+
+	def __repr__(self):
+		from .html_table_to_txt import xml_table_to_txt
+		try:
+			return xml_table_to_txt(self)
+		except IndexError:
+			return "<xmle.ElemTable render fail>"
