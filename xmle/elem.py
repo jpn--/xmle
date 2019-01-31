@@ -108,8 +108,16 @@ class Elem(Element):
 				return cls.from_bytes(arg)
 			except:
 				raise ValueError(f"cannot create Elem from {arg}")
-		else:
-			raise ValueError(f"cannot create Elem from {arg}")
+		if 'matplotlib' in str(type(arg)):
+			import matplotlib.figure
+			if isinstance(arg, matplotlib.figure.Figure):
+				try:
+					return cls.from_figure(arg)
+				except:
+					pass
+		if isinstance(arg, pandas.DataFrame):
+			return cls.from_dataframe(arg)
+		raise ValueError(f"cannot create Elem from {arg}")
 
 	@classmethod
 	def from_heading(cls, heading_level, heading_text, attrib=None, **extra):
