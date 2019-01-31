@@ -15,7 +15,8 @@ from io import BytesIO, StringIO, BufferedIOBase, TextIOBase
 xml.etree.ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
 xml.etree.ElementTree.register_namespace("xlink", "http://www.w3.org/1999/xlink")
 
-
+def Show(arg):
+	return Elem.from_any(arg)
 
 class Elem(Element):
 	"""Extends :class:`xml.etree.ElementTree.Element`"""
@@ -50,35 +51,59 @@ class Elem(Element):
 	def from_any(cls, arg):
 		if isinstance(arg, bytes) and arg[:5] == b'<svg ':
 			return cls.from_string(arg)
-		elif isinstance(arg, str) and arg[:5] == '<svg ':
+		if isinstance(arg, str) and arg[:5] == '<svg ':
 			return cls.from_string(arg)
-		elif isinstance(arg, bytes) and arg[:6] == b'<?xml ':
+		if isinstance(arg, bytes) and arg[:6] == b'<?xml ':
 			return cls.from_string(arg)
-		elif isinstance(arg, str) and arg[:6] == '<?xml ':
+		if isinstance(arg, str) and arg[:6] == '<?xml ':
 			return cls.from_string(arg)
-		elif isinstance(arg, bytes) and arg[:4] == b'\x89PNG':
+		if isinstance(arg, bytes) and arg[:4] == b'\x89PNG':
 			return cls.from_png_raw(arg)
-		elif isinstance(arg, bytes) and arg[:5] == b'iVBOR':
+		if isinstance(arg, bytes) and arg[:5] == b'iVBOR':
 			return cls.from_png_b64(arg.decode())
-		elif isinstance(arg, str) and arg[:5] == 'iVBOR':
+		if isinstance(arg, str) and arg[:5] == 'iVBOR':
 			return cls.from_png_b64(arg)
-		elif hasattr(arg, '__xml__'):
-			return cls(arg.__xml__())
-		elif hasattr(arg, 'get_png'):
-			return cls.from_any(arg.get_png())
-		elif isinstance(arg, str) and arg[:2] == '# ':
-			return cls.from_heading(1, arg[2:])
-		elif isinstance(arg, str) and arg[:3] == '## ':
-			return cls.from_heading(2, arg[3:])
-		elif isinstance(arg, str) and arg[:4] == '### ':
-			return cls.from_heading(3, arg[4:])
-		elif isinstance(arg, str) and arg[:5] == '#### ':
-			return cls.from_heading(4, arg[5:])
-		elif hasattr(arg, '_repr_html_'):
-			return cls.from_string(arg._repr_html_())
-		elif isinstance(arg, str):
-			return cls.from_rst(arg)
-		elif isinstance(arg, bytes):
+		if hasattr(arg, '__xml__'):
+			try:
+				return cls(arg.__xml__())
+			except:
+				pass
+		if hasattr(arg, 'get_png'):
+			try:
+				return cls.from_any(arg.get_png())
+			except:
+				pass
+		if isinstance(arg, str) and arg[:2] == '# ':
+			try:
+				return cls.from_heading(1, arg[2:])
+			except:
+				pass
+		if isinstance(arg, str) and arg[:3] == '## ':
+			try:
+				return cls.from_heading(2, arg[3:])
+			except:
+				pass
+		if isinstance(arg, str) and arg[:4] == '### ':
+			try:
+				return cls.from_heading(3, arg[4:])
+			except:
+				pass
+		if isinstance(arg, str) and arg[:5] == '#### ':
+			try:
+				return cls.from_heading(4, arg[5:])
+			except:
+				pass
+		if hasattr(arg, '_repr_html_'):
+			try:
+				return cls.from_string(arg._repr_html_())
+			except:
+				pass
+		if isinstance(arg, str):
+			try:
+				return cls.from_rst(arg)
+			except:
+				pass
+		if isinstance(arg, bytes):
 			try:
 				return cls.from_bytes(arg)
 			except:
