@@ -119,6 +119,13 @@ class Elem(Element):
 			return cls.from_dataframe(arg)
 		if 'plotly' in str(type(arg)):
 			import plotly.io as pio
+			import platform
+			if platform.system() == 'Windows':
+				import sys
+				possible_orca = sys.executable.replace("python.exe","orca.cmd")
+				if os.path.exists(possible_orca):
+					import plotly.io.orca as orca
+					orca.config.executable = possible_orca
 			try:
 				img_bytes = pio.to_image(arg, **kwargs)
 				return cls.from_any(img_bytes)
