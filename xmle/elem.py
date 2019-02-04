@@ -15,8 +15,8 @@ from io import BytesIO, StringIO, BufferedIOBase, TextIOBase
 xml.etree.ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
 xml.etree.ElementTree.register_namespace("xlink", "http://www.w3.org/1999/xlink")
 
-def Show(arg):
-	return Elem.from_any(arg)
+def Show(arg, **kwargs):
+	return Elem.from_any(arg, **kwargs)
 
 class Elem(Element):
 	"""Extends :class:`xml.etree.ElementTree.Element`"""
@@ -48,7 +48,7 @@ class Elem(Element):
 				if tail: self.tail = str(tail)
 
 	@classmethod
-	def from_any(cls, arg):
+	def from_any(cls, arg, **kwargs):
 		if isinstance(arg, bytes) and arg[:5] == b'<svg ':
 			return cls.from_string(arg)
 		if isinstance(arg, str) and arg[:5] == '<svg ':
@@ -117,6 +117,13 @@ class Elem(Element):
 					pass
 		if isinstance(arg, pandas.DataFrame):
 			return cls.from_dataframe(arg)
+		if 'plotly' in str(type(arg)):
+			import plotly.io as pio
+			try:
+				img_bytes = pio.to_image(arg, **kwargs)
+				return cls.from_any(img_bytes)
+			except:
+				pass
 		raise ValueError(f"cannot create Elem from {arg}")
 
 	@classmethod
