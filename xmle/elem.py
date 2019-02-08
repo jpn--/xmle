@@ -131,6 +131,11 @@ class Elem(Element):
 				return cls.from_any(img_bytes)
 			except:
 				pass
+		if hasattr(arg, 'figure'):
+			try:
+				return cls.from_any(arg.figure)
+			except:
+				pass
 		raise ValueError(f"cannot create Elem from {arg}")
 
 	@classmethod
