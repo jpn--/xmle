@@ -77,11 +77,20 @@ class Reporter(Elem):
 		metadata : Pickle-able object
 			Any object to embed in the HTML output as meta-data.
 
+		Returns
+		-------
+		str
+			The filename of the newly created file.
+
+		Raises
+		------
+		FileExistsError
+			If the file already exists and overwrite is set to `False`.
 		"""
 		self.renumber_numbered_items()
 
 		from .xhtml import XHTML
-		with XHTML(filename, overwrite=overwrite, metadata=metadata, ) as f:
+		with XHTML(filename, overwrite=overwrite, metadata=metadata, archive_dir=archive_dir) as f:
 			f << self
 		return f._filename
 
