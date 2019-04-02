@@ -3,7 +3,7 @@
 export CONDA_RECIPE_DIR="conda-recipe"
 export CONDA_BUILD_DIR="conda-build"
 export CONDA_PKG_NAME="xmle"
-export CONDA_PKG_VERSION="0.1.12"
+export CONDA_PKG_VERSION="0.1.13"
 
 conda build $CONDA_RECIPE_DIR --output-folder $CONDA_BUILD_DIR -c jpn --python 3.6
 conda build $CONDA_RECIPE_DIR --output-folder $CONDA_BUILD_DIR -c jpn --python 3.7
