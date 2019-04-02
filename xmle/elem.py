@@ -117,6 +117,8 @@ class Elem(Element):
 					pass
 		if isinstance(arg, pandas.DataFrame):
 			return cls.from_dataframe(arg)
+		if isinstance(arg, pandas.Series):
+			return cls.from_dataframe(pandas.DataFrame(arg))
 		if 'plotly' in str(type(arg)):
 			import plotly.io as pio
 			# import platform
