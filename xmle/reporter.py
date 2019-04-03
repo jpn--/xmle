@@ -8,7 +8,13 @@ from .elem import Elem
 
 class Reporter(Elem):
 
-	def __init__(self, title=None):
+	def __init__(self, title=None, short_title=None):
+
+		if short_title is None:
+			short_title = title
+
+		self._short_title = short_title
+
 		if title is None:
 			super().__init__('div', {'class': 'larch_html_report'}, html_repr=-2)
 			self.__seen_html_repr = 0
@@ -90,7 +96,13 @@ class Reporter(Elem):
 		self.renumber_numbered_items()
 
 		from .xhtml import XHTML
-		with XHTML(filename, overwrite=overwrite, metadata=metadata, archive_dir=archive_dir) as f:
+		with XHTML(
+				filename,
+				overwrite=overwrite,
+				metadata=metadata,
+				archive_dir=archive_dir,
+				title=self._short_title,
+		) as f:
 			f << self
 		return f._filename
 
