@@ -32,7 +32,7 @@ class html_tables(object):
 			df = pd.DataFrame(index = range(0, n_rows), columns = range(0, n_cols))
 
 			# Create list to store rowspan values
-			skip_index = [0 for i in range(0, n_cols)]
+			skip_index = [0 for i in range(0, n_cols+1)]
 			this_skip_index = copy.deepcopy(skip_index)
 
 			# Start by iterating over each row in this table...
@@ -80,11 +80,13 @@ class html_tables(object):
 						try:
 							while skip_index[col_counter] > 0:
 								col_counter += 1
-						except IndexError:
+						except IndexError as err:
 							from pprint import pprint
 							print("~"*50)
 							pprint(locals())
 							print("~"*50)
+							import traceback
+							traceback.print_exc()
 							raise
 							pass
 
