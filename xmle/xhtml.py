@@ -14,6 +14,8 @@ except ImportError:
 	local_logo = lambda *x: None
 	local_favicon = lambda *x: None
 
+logo_in_signature = lambda *x: None
+
 TemporaryBucket = []
 
 def TemporaryBucketCleanUp():
@@ -376,6 +378,7 @@ class XHTML():
 		import time
 
 		p = Elem('p')
+		p << logo_in_signature()
 		p << Elem('br', tail="Report generated on ")
 		p << Elem('br', attrib={'class': 'noprint'}, tail=time.strftime("%A %d %B %Y "))
 		p << Elem('br', attrib={'class': 'noprint'}, tail=time.strftime("%I:%M:%S %p"))
