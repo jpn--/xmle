@@ -317,6 +317,10 @@ class Elem(Element):
 					super().append(Elem.from_string(arg._repr_html_()))
 				elif isinstance(arg, str):
 					super().append(Elem.from_rst(arg))
+				elif isinstance(arg, xml.etree.ElementTree.Element):
+					# How is this even happening?  The original super.append should have worked
+					s = xml.etree.ElementTree.tostring(arg, encoding="utf8", method="html").decode()
+					super().append(Elem.from_string(s))
 				else:
 					raise
 
