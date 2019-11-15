@@ -322,7 +322,7 @@ class Elem(Element):
 					s = xml.etree.ElementTree.tostring(arg, encoding="utf8", method="html").decode()
 					super().append(Elem.from_string(s))
 				else:
-					raise
+					super().append(Elem.from_any(arg))
 
 	def __lshift__(self, other):
 		if other is not None:
