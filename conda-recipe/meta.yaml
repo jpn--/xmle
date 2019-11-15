@@ -10,15 +10,10 @@ requirements:
     - python>=3.6
   host:
     - python>=3.6
-    - pandas
-    - cloudpickle
-    - jpn::filez>=1.0.2
   run:
     - python>=3.6
     - pandas
-    - cloudpickle
-    - jpn::filez>=1.0.2
-  
+
 test:
   # Python imports
   imports:

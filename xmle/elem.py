@@ -7,7 +7,10 @@ from xml.etree.ElementTree import Element, SubElement, TreeBuilder, XMLParser
 from contextlib import contextmanager
 from .uid import uid as _uid
 import base64
-import cloudpickle, pickle
+try:
+	import cloudpickle
+except ImportError:
+	import pickle as cloudpickle
 import pandas
 from io import BytesIO, StringIO, BufferedIOBase, TextIOBase
 
@@ -518,7 +521,6 @@ class Elem(Element):
 		self.attrib['metadata'] = base64.standard_b64encode(cloudpickle.dumps(meta)).decode()
 
 	def __eq__(self, other):
-		import cloudpickle
 		if not isinstance(other, Elem):
 			return False
 		return (cloudpickle.dumps(self) == cloudpickle.dumps(other))

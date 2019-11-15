@@ -66,8 +66,6 @@ setup(
 
 	install_requires=[
 		'pandas',
-		'cloudpickle',
-		'filez',
 	],
 
 )

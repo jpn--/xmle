@@ -72,6 +72,49 @@ def TemporaryHtml(style=None, *, nohead=False, mode='wb+', content=None, **taghe
 	return t
 
 
+def _open_file_writer(
+		file,
+		overwrite=False,
+		archive_dir='./archive/',
+		binary=False,
+		**kwargs,
+):
+	"""
+	Open file and return a stream.  Raise IOError upon failure.
+
+	Parameters
+	----------
+
+	file : Path-like
+		This is either a text or byte string giving the name (and the path
+		if the file isn't in the current working directory) of the file to
+		be opened.
+
+	overwrite : bool, default False
+		Indicates what to do with an existing file at the same location.
+		True will simply overwrite the existing file.
+		False will raise a `FileExistsError`.
+
+	archive_dir : Path-like
+		Ignored.
+
+	binary : bool, default False
+		Open the file in binary mode.  This is equivalent to calling `open`
+		with a mode parameter of 'b'. Otherwise, the mode parameter is set to 't'
+		for text mode.
+
+	"""
+	if os.path.exists(file):
+		if overwrite == False:
+			raise FileExistsError(file)
+
+	return open(file, mode='wb' if binary else 'wt', **kwargs)
+
+try:
+	from filez import open_file_writer
+except ImportError:
+	open_file_writer = _open_file_writer
+
 class XHTML():
 	"""A class used to conveniently build xhtml documents."""
 
@@ -150,7 +193,6 @@ class XHTML():
 		elif filename.lower() == "temp":
 			filemaker = lambda: TemporaryHtml(nohead=True)
 		else:
-			from filez import open_file_writer
 			filemaker = lambda: open_file_writer(filename, binary=True, overwrite=overwrite, archive_dir=archive_dir)
 		self._filename = filename
 		self._f = filemaker()
@@ -285,7 +327,11 @@ class XHTML():
 		self.style.text = css.replace('\n', ' ').replace('\t', ' ')
 
 		if metadata is not None:
-			import cloudpickle, base64, zlib
+			import base64, zlib
+			try:
+				import cloudpickle
+			except ImportError:
+				import pickle as cloudpickle
 			_meta = (base64.standard_b64encode(zlib.compress(cloudpickle.dumps(metadata)))).decode()
 			self.head << Elem(tag="meta", name='pythonmetadata', content=_meta)
 
