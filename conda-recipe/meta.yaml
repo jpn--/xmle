@@ -5,11 +5,17 @@ package:
 source:
   path: ../
 
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+
 requirements:
   build:
     - python>=3.6
   host:
     - python>=3.6
+    - pandas
   run:
     - python>=3.6
     - pandas
