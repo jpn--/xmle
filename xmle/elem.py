@@ -170,16 +170,23 @@ class Elem(Element):
 			xml_as_string = xml_as_string.decode()
 		try:
 			return xml.etree.ElementTree.fromstring(xml_as_string, parser=XMLParser(target=TreeBuilder(element_factory=cls)))
-		except xml.etree.ElementTree.ParseError:
-			return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+		except Exception as err: # xml.etree.ElementTree.ParseError
+			# see: https://stackoverflow.com/questions/47917787/xml-etree-elementtree-parseerror-exception-handling-not-catching-errors
+			if type(err).__name__ == 'ParseError':
+				return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+			else:
+				raise
 
 	@classmethod
 	def from_bytes(cls, xml_as_bytes):
 		xml_as_string = xml_as_bytes.decode()
 		try:
 			return xml.etree.ElementTree.fromstring(xml_as_string, parser=XMLParser(target=TreeBuilder(element_factory=cls)))
-		except xml.etree.ElementTree.ParseError:
-			return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+		except Exception as err:  # xml.etree.ElementTree.ParseError
+			if type(err).__name__ == 'ParseError':
+				return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+			else:
+				raise
 
 	@classmethod
 	def from_rst(cls, rst_as_string):
@@ -200,12 +207,15 @@ class Elem(Element):
 				render, 0)
 			try:
 				return xml.etree.ElementTree.fromstring(f"<div>{render}</div>", parser=XMLParser(target=TreeBuilder(element_factory=cls)))
-			except xml.etree.ElementTree.ParseError as parse_err:
-				x = Elem('div')
-				x << xml.etree.ElementTree.fromstring(df.data.to_html(**kwargs), parser=XMLParser(target=TreeBuilder(element_factory=cls)))
-				x << Elem('pre', text=render)
-				x << Elem('pre', text=str(parse_err))
-				return x
+			except Exception as parse_err:
+				if type(parse_err).__name__ == 'ParseError':
+					x = Elem('div')
+					x << xml.etree.ElementTree.fromstring(df.data.to_html(**kwargs), parser=XMLParser(target=TreeBuilder(element_factory=cls)))
+					x << Elem('pre', text=render)
+					x << Elem('pre', text=str(parse_err))
+					return x
+				else:
+					raise
 
 	@classmethod
 	def from_figure(cls, fig, format='svg', transparent=True, tooltip=None, bbox_inches='tight', classname='figure', close_after=True, **kwargs):
