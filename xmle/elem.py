@@ -255,10 +255,18 @@ class Elem(Element):
 		if 'GRAPHWIDTH' in kwargs and 'GRAPHHEIGHT' not in kwargs:
 			kwargs['GRAPHHEIGHT'] = kwargs['GRAPHWIDTH'] * .67
 		imgbuffer = BytesIO()
-		fig.savefig(imgbuffer, dpi=None, facecolor='w', edgecolor='w',
-						   orientation='portrait', papertype=None, format=format,
-						   transparent=transparent, bbox_inches=bbox_inches, pad_inches=0.1,
-						   frameon=None)
+		fig.savefig(
+			imgbuffer,
+			dpi=None,
+			facecolor='w',
+			edgecolor='w',
+			orientation='portrait',
+			papertype=None,
+			format=format,
+			transparent=transparent,
+			bbox_inches=bbox_inches,
+			pad_inches=0.1,
+		)
 		x = cls("div", {'class': classname})
 		try:
 			x << cls.from_any(imgbuffer.getvalue())
