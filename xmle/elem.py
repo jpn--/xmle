@@ -52,6 +52,8 @@ class Elem(Element):
 
 	@classmethod
 	def from_any(cls, arg, **kwargs):
+		if isinstance(arg, cls):
+			return arg
 		if isinstance(arg, bytes) and arg[:5] == b'<svg ':
 			return cls.from_string(arg)
 		if isinstance(arg, str) and arg[:5] == '<svg ':
