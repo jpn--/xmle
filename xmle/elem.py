@@ -3,7 +3,7 @@
 import os
 import re
 import xml.etree.ElementTree
-from xml.etree.ElementTree import Element, SubElement, TreeBuilder, XMLParser
+from xml.etree.ElementTree import Element, SubElement, TreeBuilder, XMLParser, ParseError
 from contextlib import contextmanager
 from .uid import uid as _uid
 import base64
@@ -101,6 +101,11 @@ class Elem(Element):
 		if hasattr(arg, '_repr_html_'):
 			try:
 				return cls.from_string(arg._repr_html_())
+			except ParseError:
+				try:
+					return cls.from_string(f"<div>{arg._repr_html_()}</div>")
+				except:
+					pass
 			except:
 				pass
 		if isinstance(arg, str):
@@ -167,7 +172,7 @@ class Elem(Element):
 		return self
 
 	@classmethod
-	def from_string(cls, xml_as_string):
+	def from_string(cls, xml_as_string, _fix1=False):
 		if isinstance(xml_as_string, bytes):
 			xml_as_string = xml_as_string.decode()
 		try:
@@ -175,7 +180,10 @@ class Elem(Element):
 		except Exception as err: # xml.etree.ElementTree.ParseError
 			# see: https://stackoverflow.com/questions/47917787/xml-etree-elementtree-parseerror-exception-handling-not-catching-errors
 			if type(err).__name__ == 'ParseError':
-				return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"))
+				if not _fix1:
+					return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"), _fix1=True)
+				else:
+					return cls.from_string("<div>"+xml_as_string.replace("<style scoped>", "<style scoped='1'>")+"</div>", _fix1=True)
 			else:
 				raise
 
