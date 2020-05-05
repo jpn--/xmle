@@ -371,6 +371,15 @@ class Elem(Element):
 		return self.tobytes().decode()
 
 	@property
+	def is_png(self):
+		if len(self) == 1 and self.tag=='div':
+			return self[0].is_png
+		elif self.tag=='img' and self.attrib['src'][:27] != "data:image/png;base64,iVBOR":
+			return True
+		else:
+			return False
+
+	@property
 	def is_svg(self):
 		if len(self) == 1 and self[0].tag[-3:]=='svg':
 			return True
@@ -404,16 +413,20 @@ class Elem(Element):
 			filename.flush()
 
 	def to_png(self, filename=None):
-		if not self.is_svg:
-			raise TypeError("must be a svg element, or a div containing only a svg")
-		import cairosvg
-		import tempfile
-		tempfile = tempfile.NamedTemporaryFile(suffix='.svg', mode='w+', delete=False)
-		self.to_svg_doc(filename=tempfile)
-		return cairosvg.svg2png(
-			url=tempfile.name,
-			write_to=filename,
-		)
+		if self.is_png:
+			import base64
+			with open(filename, "wb") as fh:
+				fh.write(base64.decodebytes(self.attrib['src'][22:].encode()))
+		elif self.is_svg:
+			import cairosvg
+			import tempfile
+			tempfile = tempfile.NamedTemporaryFile(suffix='.svg', mode='w+', delete=False)
+			self.to_svg_doc(filename=tempfile)
+			return cairosvg.svg2png(
+				url=tempfile.name,
+				write_to=filename,
+			)
+		raise TypeError("must be a svg or png element, or a div containing only a svg or png")
 
 	@classmethod
 	def from_png_raw(cls, png_raw):
