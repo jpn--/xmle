@@ -237,5 +237,6 @@ def archive_existing_file(filename, archive_path=None, tag='now'):
 			allow_natural=True
 		)
 		shutil.move(filename, new_name)
+		return new_name
 
 
