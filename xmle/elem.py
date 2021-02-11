@@ -269,7 +269,6 @@ class Elem(Element):
 			facecolor='w',
 			edgecolor='w',
 			orientation='portrait',
-			papertype=None,
 			format=format,
 			transparent=transparent,
 			bbox_inches=bbox_inches,
