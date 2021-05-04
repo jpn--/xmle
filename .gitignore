@@ -105,3 +105,4 @@ venv.bak/
 conda-build
 123.html
 releases
+.idea
