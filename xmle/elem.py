@@ -172,18 +172,26 @@ class Elem(Element):
 		return self
 
 	@classmethod
-	def from_string(cls, xml_as_string, _fix1=False):
+	def from_string(cls, xml_as_string, _fix_step=0):
 		if isinstance(xml_as_string, bytes):
 			xml_as_string = xml_as_string.decode()
+		parser = XMLParser(target=TreeBuilder(element_factory=cls))
 		try:
-			return xml.etree.ElementTree.fromstring(xml_as_string, parser=XMLParser(target=TreeBuilder(element_factory=cls)))
+			return xml.etree.ElementTree.fromstring(xml_as_string, parser=parser)
 		except Exception as err: # xml.etree.ElementTree.ParseError
 			# see: https://stackoverflow.com/questions/47917787/xml-etree-elementtree-parseerror-exception-handling-not-catching-errors
 			if type(err).__name__ == 'ParseError':
-				if not _fix1:
-					return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"), _fix1=True)
+				if _fix_step == 0:
+					return cls.from_string(xml_as_string.replace("<style scoped>","<style scoped='1'>"), _fix_step=1)
+				elif _fix_step == 1:
+					return cls.from_string("<div>"+xml_as_string.replace("<style scoped>", "<style scoped='1'>")+"</div>", _fix_step=2)
+				elif _fix_step == 2:
+					return cls.from_string(xml_as_string.replace("&nbsp;", " "), _fix_step=3)
 				else:
-					return cls.from_string("<div>"+xml_as_string.replace("<style scoped>", "<style scoped='1'>")+"</div>", _fix1=True)
+					import logging
+					lined = "\n".join(f"{n: 4d} | {line}" for n,line in enumerate(xml_as_string.split("\n"), start=1))
+					logging.getLogger("").error(f"ParseError in:\n{lined}")
+					raise
 			else:
 				raise
 
