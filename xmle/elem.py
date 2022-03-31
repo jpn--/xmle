@@ -143,6 +143,8 @@ class Elem(Element):
 				return cls.from_any(img_bytes)
 			except:
 				pass
+		if 'altair' in str(type(arg)):
+			return cls.from_altair(arg)
 		if hasattr(arg, 'figure'):
 			try:
 				return cls.from_any(arg.figure)
@@ -293,6 +295,21 @@ class Elem(Element):
 
 		if close_after and fig_number is not None:
 			plt.close(fig_number)
+		return x
+
+	@classmethod
+	def from_altair(cls, fig, classname="altair-figure"):
+		import secrets
+		unique_token = secrets.token_urlsafe(6)
+		spec = fig.to_json(indent=None)
+		template = (
+			f"""<script type="text/javascript">"""
+			f"""vegaEmbed('#vis_{unique_token}', {spec}).catch(console.error);"""
+			f"""</script>"""
+		)
+		x = cls("div", {'class': classname})
+		x << cls("div", {'id': f"vis_{unique_token}"})
+		x << cls.from_string(template)
 		return x
 
 	def put(self, tag, attrib=None, text=None, tail=None, **extra):
@@ -450,6 +467,11 @@ class Elem(Element):
 		)
 
 	def _repr_html_(self):
+		if self.tag == 'div' and self.attrib.get("class", None) == 'altair-figure':
+			# import IPython.display
+			# IPython.display.display_html(self[0].tostring())
+			# IPython.display.display_javascript(self[1].text, raw=True)
+			return "<div>altair viz within xmle only displays in saved file.</div>"
 		return self.tostring()
 		# if self.__do_html_repr == 0:
 		# 	return None

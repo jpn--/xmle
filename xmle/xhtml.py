@@ -133,6 +133,7 @@ class XHTML():
 			metadata=None,
 			toc=True,
 			favicon=None,
+			vega=True,
 	):
 		"""
 
@@ -226,6 +227,17 @@ class XHTML():
 				'crossorigin': "anonymous",
 			})
 			self.head << self.jqueryui
+
+		if vega:
+			self.head << Elem(tag="script", attrib={
+				'src': "https://cdn.jsdelivr.net/npm/vega@5",
+			})
+			self.head << Elem(tag="script", attrib={
+				'src': "https://cdn.jsdelivr.net/npm/vega-lite@5",
+			})
+			self.head << Elem(tag="script", attrib={
+				'src': "https://cdn.jsdelivr.net/npm/vega-embed@6",
+			})
 
 		if floating_tablehead:
 			self.floatThead = Elem(tag="script", attrib={

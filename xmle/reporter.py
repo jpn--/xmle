@@ -55,6 +55,7 @@ class Reporter(Elem):
 			overwrite=False,
 			archive_dir='./archive/',
 			metadata=None,
+			**kwargs,
 		):
 		"""
 		Save this Reporter to a report-formatted HTML file.
@@ -100,6 +101,7 @@ class Reporter(Elem):
 				metadata=metadata,
 				archive_dir=archive_dir,
 				title=self._short_title,
+				**kwargs,
 		) as f:
 			f << self
 		return f._filename

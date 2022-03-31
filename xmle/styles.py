@@ -234,28 +234,6 @@ div.larch_title {
 	color: #444444;
 }
 
-table {border-collapse:collapse;}
-
-table, th, td {
-	border: 1px solid #999999;
-	font-family:"Roboto Mono", monospace;
-	font-size:90%;
-	font-weight:400;
-	}
-
-th, td { padding:2px; }
-
-td.parameter_category {
-	font-family:"Roboto", monospace;
-	font-weight:500;
-	background-color: #f4f4f4; 
-	font-style: italic;
-	}
-
-th {
-	font-family:"Roboto", monospace;
-	font-weight:700;
-	}
 
 .larch_signature {""" + signature_font + """}
 .larch_name_signature {""" + signature_name_font + """}
@@ -340,3 +318,30 @@ p.admonition-title {
 }
 
 """
+
+def default_css_2():
+	return """
+table {border-collapse:collapse;}
+
+table, th, td {
+	border: 1px solid #999999;
+	font-family:"Roboto Mono", monospace;
+	font-size:90%;
+	font-weight:400;
+	}
+
+th, td { padding:2px; }
+
+td.parameter_category {
+	font-family:"Roboto", monospace;
+	font-weight:500;
+	background-color: #f4f4f4; 
+	font-style: italic;
+	}
+
+th {
+	font-family:"Roboto", monospace;
+	font-weight:700;
+	}
+
+	"""
