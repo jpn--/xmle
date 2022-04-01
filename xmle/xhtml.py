@@ -136,6 +136,7 @@ class XHTML():
 			vega=True,
 			toc_color='lime',
 			toc_font=None,
+			branding=None,
 	):
 		"""
 
@@ -266,6 +267,7 @@ class XHTML():
 
 		self.toc_color = toc_color
 		self.toc_font = toc_font
+		self.branding = branding
 
 		from .styles import default_css
 
@@ -440,7 +442,10 @@ class XHTML():
 		import time
 
 		p = Elem('p')
-		p << logo_in_signature()
+		logo_in_sig = logo_in_signature()
+		if logo_in_sig is None and self.branding:
+			logo_in_sig = Elem('span', {'class': 'xmle_name_signature'}, text=self.branding)
+		p << logo_in_sig
 		p << Elem('br', tail="Report generated on ")
 		p << Elem('br', attrib={'class': 'noprint'}, tail=time.strftime("%A %d %B %Y "))
 		p << Elem('br', attrib={'class': 'noprint'}, tail=time.strftime("%I:%M:%S %p"))
