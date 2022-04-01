@@ -27,7 +27,7 @@ def load_css(filename):
 	except ImportError:
 		pass
 	else:
-		f1 = os.path.join(appdirs.user_config_dir('Larch'), filename)
+		f1 = os.path.join(appdirs.user_config_dir('xmle'), filename)
 		if os.path.exists(f1):
 			with open(f1, 'r') as f:
 				css = f.read()
@@ -111,13 +111,13 @@ div.jp-OutputArea-output div.LinearFunc
 
 
 
-.larch_signature {""" + signature_font + """ }
-.larch_name_signature {""" + signature_name_font + """}
+.xmle_signature {""" + signature_font + """ }
+.xmle_name_signature {""" + signature_name_font + """}
 
-.larch_head_tag {font-size:150%; font-weight:900; font-family:"Roboto Slab", Verdana;}
-.larch_head_tag_ver {font-size:80%; font-weight:200; font-family:"Roboto Slab", Verdana;}
-.larch_head_tag_pth {font-size:40%; font-weight:200; font-family:"Roboto Slab", Verdana; padding-left:5px;}
-.larch_head_tag_more {font-size:50%; font-weight:300; font-family:"Roboto Mono", monospace; line-height:130%;}
+.xmle_head_tag {font-size:150%; font-weight:900; font-family:"Roboto Slab", Verdana;}
+.xmle_head_tag_ver {font-size:80%; font-weight:200; font-family:"Roboto Slab", Verdana;}
+.xmle_head_tag_pth {font-size:40%; font-weight:200; font-family:"Roboto Slab", Verdana; padding-left:5px;}
+.xmle_head_tag_more {font-size:50%; font-weight:300; font-family:"Roboto Mono", monospace; line-height:130%;}
 
 div.output_wrapper a.parameter_reference,
 div.jp-OutputArea-output a.parameter_reference
@@ -226,7 +226,7 @@ def default_css():
 
 body {""" + body_font + """}
 
-div.larch_title {
+div.xmle_title {
 	font-family: "Book-Antiqua", "Palatino", serif;
 	font-size:200%; 
 	font-weight:900;
@@ -235,8 +235,8 @@ div.larch_title {
 }
 
 
-.larch_signature {""" + signature_font + """}
-.larch_name_signature {""" + signature_name_font + """}
+.xmle_signature {""" + signature_font + """}
+.xmle_name_signature {""" + signature_name_font + """}
 
 a.parameter_reference {font-style: italic; text-decoration: none}
 

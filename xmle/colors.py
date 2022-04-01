@@ -7,6 +7,17 @@ _color_rgb256['forest'] = (39,182,123)
 _color_rgb256['lime'] = (128,189,1)
 _color_rgb256['orange'] = (246,147,0)
 _color_rgb256['red'] = (246,1,0)
+_color_rgb256['salmon'] = (250, 128, 114)
+_color_rgb256['pink'] = (255, 192, 203)
+_color_rgb256['hotpink'] = (255, 105, 180)
+_color_rgb256['crimson'] = (220, 20, 60)
+_color_rgb256['gold'] = (255, 215, 0)
+_color_rgb256['orchid'] = (218, 112, 214)
+_color_rgb256['seagreen'] = (46, 139, 87)
+_color_rgb256['mediumaquamarine'] = (102, 205, 170)
+_color_rgb256['turquoise'] = (64, 224, 208)
+_color_rgb256['goldenrod'] = (218, 165, 32)
+_color_rgb256['powderblue'] = (176, 224, 230)
 
 def hexcolor(color):
 	c = _color_rgb256[color.casefold()]

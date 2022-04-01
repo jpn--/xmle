@@ -14,11 +14,11 @@ class Reporter(Elem):
 		self._short_title = short_title
 
 		if title is None:
-			super().__init__('div', {'class': 'larch_html_report'}, html_repr=-2)
+			super().__init__('div', {'class': 'xmle_html_report'}, html_repr=-2)
 			self.__seen_html_repr = 0
 		else:
-			super().__init__('div', {'class': 'larch_html_report'}, html_repr=-2)
-			self.put('div', {'class':'larch_title'}, text=title)
+			super().__init__('div', {'class': 'xmle_html_report'}, html_repr=-2)
+			self.put('div', {'class':'xmle_title'}, text=title)
 			self.__seen_html_repr = len(self)
 
 	def _repr_html_(self):
@@ -41,12 +41,12 @@ class Reporter(Elem):
 		return s
 
 	def renumber_numbered_items(self):
-		# Find all larch_caption classes
+		# Find all xmle_caption classes
 		caption_classes = set()
-		for n, i in enumerate(self.findall(".//span[@larch_caption]")):
-			caption_classes.add(i.attrib['larch_caption'])
+		for n, i in enumerate(self.findall(".//span[@xmle_caption]")):
+			caption_classes.add(i.attrib['xmle_caption'])
 		for caption_class in caption_classes:
-			for n, i in enumerate(self.findall(f".//span[@larch_caption='{caption_class}']")): # 			for n, i in enumerate(self.findall(f".//span[@class='larch_{caption_class.lower().replace(' ','_')}_caption']")):
+			for n, i in enumerate(self.findall(f".//span[@xmle_caption='{caption_class}']")): # 			for n, i in enumerate(self.findall(f".//span[@class='xmle_{caption_class.lower().replace(' ','_')}_caption']")):
 				i.text = re.sub(f"{caption_class}(\s?[0-9]*):", f"{caption_class} {n+1}:", i.text, count=0, flags=0)
 
 	def save(
@@ -134,3 +134,28 @@ class Reporter(Elem):
 		with open(filename, 'wt') as f:
 			f.write( "".join( _1._repr_html_()  for _1 in list(self) ) )
 		return filename
+
+	def __enter__(self):
+		# Use as context manager to swallow exceptions into the report instead of raising them
+		return self
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		if exc_type or exc_val or exc_tb:
+			if exc_type == KeyboardInterrupt:
+				return # manual stop, just stop
+			# an exception was raised, write the traceback into the report
+			import traceback
+			out = "".join(traceback.format_exception(exc_type, exc_val, exc_tb))
+			try:
+				from pygments import highlight
+				from pygments.formatters.html import HtmlFormatter
+				from pygments.lexers.python import PythonTracebackLexer
+			except ImportError:
+				# write plain
+				self << Elem.from_string(f"<pre>{out}</pre>")
+			else:
+				# write fancy
+				pretty = highlight(out, PythonTracebackLexer(), HtmlFormatter())
+				css = HtmlFormatter().get_style_defs(".highlight")
+				self << Elem.from_string(f"<style>{css}</style>{pretty}")
+			return True # suppress exception after logging, and continue

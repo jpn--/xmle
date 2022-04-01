@@ -134,6 +134,8 @@ class XHTML():
 			toc=True,
 			favicon=None,
 			vega=True,
+			toc_color='lime',
+			toc_font=None,
 	):
 		"""
 
@@ -262,7 +264,8 @@ class XHTML():
 		self.head << self.title
 		self.head << self.style
 
-		self.toc_color = 'lime'
+		self.toc_color = toc_color
+		self.toc_font = toc_font
 
 		from .styles import default_css
 
@@ -279,8 +282,8 @@ class XHTML():
 			.table_of_contents_head { font-weight:700; padding-left:25px;  }
 			.table_of_contents ul { padding-left:25px;  }
 			.table_of_contents ul ul { font-size:75%; padding-left:15px; }
-			.larch_signature {""" + styles.signature_font + """ width: """ + str(toc_width - 30) + """px; position: fixed; left: 0px; bottom: 0px; padding-left:20px; padding-bottom:2px; background-color:rgba(255,255,255,0.9);}
-			.larch_name_signature {""" + styles.signature_name_font + """}
+			.xmle_signature {""" + styles.signature_font + """ width: """ + str(toc_width - 30) + """px; position: fixed; left: 0px; bottom: 0px; padding-left:20px; padding-bottom:2px; background-color:rgba(255,255,255,0.9);}
+			.xmle_name_signature {""" + styles.signature_name_font + """}
 			a.parameter_reference {font-style: italic; text-decoration: none}
 			.strut2 {min-width:2in}
 			.histogram_cell { padding-top:1; padding-bottom:1; vertical-align:center; }
@@ -295,18 +298,18 @@ class XHTML():
 			   h1, h2, h3 { page-break-after: avoid; }
 			   img { max-width: 100% !important; }
 			   ul, img, table { page-break-inside: avoid; }
-			   .larch_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; position: fixed; bottom: 0;}
-			   .larch_name_signature {""" + styles.signature_name_font + """}
-			   .larch_signature img {display:none;}
-			   .larch_signature .noprint {display:none;}
+			   .xmle_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; position: fixed; bottom: 0;}
+			   .xmle_name_signature {""" + styles.signature_name_font + """}
+			   .xmle_signature img {display:none;}
+			   .xmle_signature .noprint {display:none;}
 			}
 			"""
 		else:
 			self.with_toc = False
 			default_css_ = default_css() + """
 
-		   .larch_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; }
-			.larch_name_signature {""" + styles.signature_name_font + """}
+		   .xmle_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; }
+			.xmle_name_signature {""" + styles.signature_name_font + """}
 			a.parameter_reference {font-style: italic; text-decoration: none}
 			.strut2 {min-width:2in}
 			.histogram_cell { padding-top:1; padding-bottom:1; vertical-align:center; }
@@ -321,10 +324,10 @@ class XHTML():
 			   h1, h2, h3 { page-break-after: avoid; }
 			   img { max-width: 100% !important; }
 			   ul, img, table { page-break-inside: avoid; }
-			   .larch_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; position: fixed; bottom: 0;}
-			   .larch_name_signature {""" + styles.signature_name_font + """}
-			   .larch_signature img {display:none;}
-			   .larch_signature .noprint {display:none;}
+			   .xmle_signature {""" + styles.signature_font + """ padding:0; background-color:#fff; position: fixed; bottom: 0;}
+			   .xmle_name_signature {""" + styles.signature_name_font + """}
+			   .xmle_signature img {display:none;}
+			   .xmle_signature .noprint {display:none;}
 			}
 			"""
 
@@ -391,8 +394,9 @@ class XHTML():
 		return xtoc
 
 	def toc_iframe(self, insert=False):
+		toc_font = self.toc_font or styles.body_font
 		css = """
-		.table_of_contents { font-size:85%; """ + styles.body_font + """ }
+		.table_of_contents { font-size:85%; """ + toc_font + """ }
 		.table_of_contents a:link { text-decoration: none; }
 		.table_of_contents a:visited { text-decoration: none; }
 		.table_of_contents a:hover { text-decoration: underline; }
@@ -432,7 +436,7 @@ class XHTML():
 		return toc_elem
 
 	def sign(self, insert=False):
-		xsign = Elem("div", {'class': 'larch_signature'})
+		xsign = Elem("div", {'class': 'xmle_signature'})
 		import time
 
 		p = Elem('p')
@@ -455,12 +459,12 @@ class XHTML():
 
 		if sign:
 			try:
-				s = self.root.find(".//div[@class='larch_signature']/..")
+				s = self.root.find(".//div[@class='xmle_signature']/..")
 			except TypeError:
 				pass
 			else:
 				if s is not None:
-					s.remove(s.find(".//div[@class='larch_signature']"))
+					s.remove(s.find(".//div[@class='xmle_signature']"))
 		if toc:
 			try:
 				s = self.root.find(".//div[@class='table_of_contents']/..")
@@ -482,12 +486,12 @@ class XHTML():
 		self._f.flush()
 		if sign:
 			try:
-				s = self.root.find(".//div[@class='larch_signature']/..")
+				s = self.root.find(".//div[@class='xmle_signature']/..")
 			except TypeError:
 				pass
 			else:
 				if s is not None:
-					s.remove(s.find(".//div[@class='larch_signature']"))
+					s.remove(s.find(".//div[@class='xmle_signature']"))
 		if toc:
 			try:
 				s = self.root.find(".//div[@class='table_of_contents']/..")
