@@ -16,6 +16,9 @@ dev = [
     "jupyter",
     "pandas",
     "altair",
+    "docutils",
+    "networkx",
+    "pydot",
 ]
 
 [build-system]
