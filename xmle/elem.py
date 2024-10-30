@@ -534,10 +534,16 @@ class Elem(Element):
 
     def _repr_html_(self):
         if self.tag == "div" and self.attrib.get("class", None) == "altair-figure":
-            # import IPython.display
-            # IPython.display.display_html(self[0].tostring())
-            # IPython.display.display_javascript(self[1].text, raw=True)
-            return "<div>altair viz within xmle only displays in saved file.</div>"
+            import altair as alt
+            import re
+            import io
+
+            txt = self[1].text
+            j = re.search("\{.*}", txt).group(0)
+            fig = alt.Chart.from_json(j)
+            buffer = io.StringIO()
+            fig.save(buffer, format="svg")
+            return Elem.from_any(buffer.getvalue()).tostring()
         return self.tostring()
         # if self.__do_html_repr == 0:
         # 	return None

@@ -19,6 +19,7 @@ dev = [
     "docutils",
     "networkx",
     "pydot",
+    "vl-convert-python",
 ]
 
 [build-system]

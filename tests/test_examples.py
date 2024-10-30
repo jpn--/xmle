@@ -84,3 +84,7 @@ def test_altair():
     )
     z = xmle.Show(fig)
     assert isinstance(z, xmle.Elem)
+    assert len(z) == 2
+    assert z[0].tag == "div"
+    assert z[1].tag == "script"
+    assert z[1].text.startswith("vegaEmbed")
