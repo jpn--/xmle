@@ -254,7 +254,7 @@ class Elem(Element):
             )
         elif isinstance(df, pd.io.formats.style.Styler):
             render = df.render()
-            render = re.sub(r"colspan=([1234567890]*)>", 'colspan="\g<1>">', render, 0)
+            render = re.sub(r"colspan=([1234567890]*)>", r'colspan="\g<1>">', render, 0)
             try:
                 return xml.etree.ElementTree.fromstring(
                     f"<div>{render}</div>",
@@ -539,7 +539,7 @@ class Elem(Element):
             import io
 
             txt = self[1].text
-            j = re.search("\{.*}", txt).group(0)
+            j = re.search(r"\{.*}", txt).group(0)
             fig = alt.Chart.from_json(j)
             buffer = io.StringIO()
             fig.save(buffer, format="svg")
